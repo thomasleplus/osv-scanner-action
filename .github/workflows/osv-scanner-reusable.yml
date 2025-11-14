@@ -92,7 +92,11 @@ jobs:
         continue-on-error: true
       - name: "Export results"
         id: export
-        run: echo "results=$(cat ${{ inputs.matrix-property }}results.json | jq -c . | base64 -w0)" >> $GITHUB_OUTPUT
+        run: |
+          DELIMITER="EOF_$(tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 16)"
+          echo "results<<${DELIMITER}" >> "${GITHUB_OUTPUT}"
+          cat ${{ inputs.matrix-property }}osv-results.json >> "${GITHUB_OUTPUT}"
+          echo "${DELIMITER}" >> "${GITHUB_OUTPUT}"
       - name: "Run osv-scanner-reporter"
         uses: google/osv-scanner-action/osv-reporter-action@d510e7d909b203e4aa41380fa1e74c20cad9fadf # v2.2.4
         with:
