@@ -99,13 +99,17 @@ jobs:
       - name: "Export results"
         id: export
         run: |
-          DELIMITER="EOF_$(tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 16)"
-          echo "old-results<<${DELIMITER}" >> "${GITHUB_OUTPUT}"
-          cat ${{ inputs.matrix-property }}old-results.json >> "${GITHUB_OUTPUT}"
-          echo "${DELIMITER}" >> "${GITHUB_OUTPUT}"
-          echo "new-results<<${DELIMITER}" >> "${GITHUB_OUTPUT}"
-          cat ${{ inputs.matrix-property }}new-results.json >> "${GITHUB_OUTPUT}"
-          echo "${DELIMITER}" >> "${GITHUB_OUTPUT}"
+          DELIMITER="EOF_$(tr -dc 'a-zA-Z0-9' < /dev/urandom 2>/dev/null | head -c 16)"
+          if [ -f ${{ inputs.matrix-property }}old-results.json ]; then
+            echo "old-results<<${DELIMITER}" >> "${GITHUB_OUTPUT}"
+            cat ${{ inputs.matrix-property }}old-results.json >> "${GITHUB_OUTPUT}"
+            echo "${DELIMITER}" >> "${GITHUB_OUTPUT}"
+          fi
+          if [ -f ${{ inputs.matrix-property }}new-results.json ]; then
+            echo "new-results<<${DELIMITER}" >> "${GITHUB_OUTPUT}"
+            cat ${{ inputs.matrix-property }}new-results.json >> "${GITHUB_OUTPUT}"
+            echo "${DELIMITER}" >> "${GITHUB_OUTPUT}"
+          fi
       - name: "Run osv-scanner-reporter"
         uses: google/osv-scanner-action/osv-reporter-action@d510e7d909b203e4aa41380fa1e74c20cad9fadf # v2.2.4
         with:

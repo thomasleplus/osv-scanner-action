@@ -93,10 +93,12 @@ jobs:
       - name: "Export results"
         id: export
         run: |
-          DELIMITER="EOF_$(tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 16)"
-          echo "results<<${DELIMITER}" >> "${GITHUB_OUTPUT}"
-          cat ${{ inputs.matrix-property }}osv-results.json >> "${GITHUB_OUTPUT}"
-          echo "${DELIMITER}" >> "${GITHUB_OUTPUT}"
+          if [ -f ${{ inputs.matrix-property }}osv-results.json ]; then
+            DELIMITER="EOF_$(tr -dc 'a-zA-Z0-9' < /dev/urandom 2>/dev/null | head -c 16)"
+            echo "results<<${DELIMITER}" >> "${GITHUB_OUTPUT}"
+            cat ${{ inputs.matrix-property }}osv-results.json >> "${GITHUB_OUTPUT}"
+            echo "${DELIMITER}" >> "${GITHUB_OUTPUT}"
+          fi
       - name: "Run osv-scanner-reporter"
         uses: google/osv-scanner-action/osv-reporter-action@d510e7d909b203e4aa41380fa1e74c20cad9fadf # v2.2.4
         with:
